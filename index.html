@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوصلة القبلة الفاخرة</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="القبلة">
+
+    <style>
+        :root {
+            --primary-dark: #1a252f;
+            --gold-gradient: linear-gradient(145deg, #ffd700, #b8860b, #fff7ad, #8a6d3b);
+            --success-green: linear-gradient(145deg, #2ecc71, #27ae60);
+            --bg-deep: radial-gradient(circle at center, #2c3e50 0%, #000000 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-deep);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* حاوية التصميم الفاخر */
+        .luxury-wrapper {
+            position: relative;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 60px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+        }
+
+        .compass-outer {
+            width: 280px;
+            height: 280px;
+            background: var(--gold-gradient);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* حالة النجاح (التوهج) */
+        .compass-outer.success {
+            background: var(--success-green) !important;
+            box-shadow: 0 0 60px rgba(46, 204, 113, 0.6);
+            transform: scale(1.03);
+        }
+
+        .compass-inner {
+            width: 250px;
+            height: 250px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* تأثير الزجاج العلوي */
+        .compass-inner::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%);
+            z-index: 15;
+            pointer-events: none;
+        }
+
+        .north-indicator {
+            position: absolute;
+            top: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .north-arrow {
+            width: 0; height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #e74c3c;
+        }
+        .north-label { color: #e74c3c; font-size: 12px; font-weight: 900; margin-top: 2px; }
+
+        .kaaba-container {
+            position: absolute;
+            width: 100%; height: 100%;
+            z-index: 5;
+            will-change: transform;
+        }
+        .kaaba-icon {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 55px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+        }
+
+        .center-dot {
+            width: 18px; height: 18px;
+            background: #2c3e50;
+            border-radius: 50%;
+            z-index: 20;
+            border: 3px solid #ffd700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* لوحة التحكم والمعلومات */
+        .control-panel {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        #status-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #1a252f;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: none; /* يظهر للآيفون فقط */
+        }
+        .btn-gold:active { transform: scale(0.96); }
+
+        .designer-tag {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="luxury-wrapper">
+        <div class="compass-outer" id="mainCompass">
+            <div class="compass-inner">
+                <div class="north-indicator">
+                    <div class="north-arrow"></div>
+                    <div class="north-label">N</div>
+                </div>
+                
+                <div class="kaaba-container" id="kaabaNode">
+                    <div class="kaaba-icon">🕋</div>
+                </div>
+
+                <div class="center-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <div id="status-text">بانتظار تحديد الموقع...</div>
+        
+        <button id="activateBtn" class="btn-gold" onclick="startCompass()">تفعيل الاتجاه 🧭</button>
+        
+        <div class="designer-tag">DESIGNED BY MOHAMMED AL-ALALI</div>
+        <button onclick="location.reload()" style="background:none; border:none; color:#555; text-decoration:underline; margin-top:15px; cursor:pointer;">إعادة المعايرة</button>
+    </div>
+
+<script>
+    const kaabaNode = document.getElementById('kaabaNode');
+    const mainCompass = document.getElementById('mainCompass');
+    const statusText = document.getElementById('status-text');
+    const activateBtn = document.getElementById('activateBtn');
+    
+    const KAABA_COORDS = { lat: 21.4225, lng: 39.8262 };
+    let qiblaAngle = 0;
+    let deviceHeading = 0;
+    let smoothHeading = 0;
+    let isSuccess = false;
+
+    // الحصول على الموقع وحساب القبلة
+    navigator.geolocation.getCurrentPosition(pos => {
+        const p1 = pos.coords.latitude * Math.PI / 180;
+        const l1 = pos.coords.longitude * Math.PI / 180;
+        const p2 = KAABA_COORDS.lat * Math.PI / 180;
+        const l2 = KAABA_COORDS.lng * Math.PI / 180;
+        
+        const y = Math.sin(l2 - l1);
+        const x = Math.cos(p1) * Math.tan(p2) - Math.sin(p1) * Math.cos(l2 - l1);
+        qiblaAngle = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+
+        initApp();
+    }, () => {
+        statusText.innerText = "يرجى السماح بالوصول للموقع لتحديد القبلة";
+    });
+
+    function initApp() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            statusText.innerText = "نظام iOS جاهز.. اضغط للتفعيل";
+            activateBtn.style.display = 'inline-block';
+        } else {
+            // أندرويد
+            window.addEventListener('deviceorientationabsolute', updateMotion, true);
+            window.addEventListener('deviceorientation', updateMotion, true);
+            statusText.innerText = "أدر الجوال باتجاه الكعبة";
+            render();
+        }
+    }
+
+    async function startCompass() {
+        const permission = await DeviceOrientationEvent.requestPermission();
+        if (permission === 'granted') {
+            window.addEventListener('deviceorientation', updateMotion, true);
+            activateBtn.style.display = 'none';
+            statusText.innerText = "أدر الجوال باتجاه الكعبة";
+            render();
+        }
+    }
+
+    function updateMotion(e) {
+        if (e.webkitCompassHeading) {
+            deviceHeading = e.webkitCompassHeading;
+        } else if (e.alpha !== null) {
+            deviceHeading = 360 - e.alpha;
+        }
+    }
+
+    function render() {
+        let diff = deviceHeading - smoothHeading;
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        smoothHeading += diff * 0.1; // تنعيم الحركة
+
+        const finalRotation = qiblaAngle - smoothHeading;
+        kaabaNode.style.transform = `rotate(${finalRotation}deg)`;
+
+        // التحقق من النجاح
+        const check = (finalRotation % 360 + 360) % 360;
+        if (check < 7 || check > 353) {
+            if (!isSuccess) {
+                if (navigator.vibrate) navigator.vibrate(40); // اهتزاز خفيف
+                isSuccess = true;
+            }
+            mainCompass.classList.add('success');
+            statusText.innerHTML = "<span style='color:#2ecc71'>وجهتك نحو القبلة ✅</span>";
+        } else {
+            isSuccess = false;
+            mainCompass.classList.remove('success');
+            statusText.innerText = "أدر الجوال باتجاه الكعبة";
+        }
+        requestAnimationFrame(render);
+    }
+</script>
+</body>
+</html>
