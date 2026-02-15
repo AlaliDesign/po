@@ -137,4 +137,125 @@
             margin-top: 30px;
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 2px
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="luxury-wrapper">
+        <div class="compass-outer" id="mainCompass">
+            <div class="compass-inner">
+                <div class="north-indicator">
+                    <div class="north-arrow"></div>
+                    <div class="north-label">N</div>
+                </div>
+                
+                <div class="kaaba-container" id="kaabaNode">
+                    <div class="kaaba-icon">🕋</div>
+                </div>
+
+                <div class="center-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <div id="status-text">جاري البحث عن موقعك...</div>
+        <button id="activateBtn" class="btn-gold" onclick="startCompass()">تفعيل البوصلة 🧭</button>
+        <div class="designer-tag">DESIGNED BY MOHAMMED AL-ALALI</div>
+    </div>
+
+<script>
+    const kaabaNode = document.getElementById('kaabaNode');
+    const mainCompass = document.getElementById('mainCompass');
+    const statusText = document.getElementById('status-text');
+    const activateBtn = document.getElementById('activateBtn');
+    
+    const KAABA_COORDS = { lat: 21.4225, lng: 39.8262 };
+    let qiblaAngle = 0;
+    let deviceHeading = 0;
+    let smoothHeading = 0;
+    let isSuccess = false;
+
+    // الحصول على الموقع
+    navigator.geolocation.getCurrentPosition(pos => {
+        const p1 = pos.coords.latitude * Math.PI / 180;
+        const l1 = pos.coords.longitude * Math.PI / 180;
+        const p2 = KAABA_COORDS.lat * Math.PI / 180;
+        const l2 = KAABA_COORDS.lng * Math.PI / 180;
+        
+        const y = Math.sin(l2 - l1);
+        const x = Math.cos(p1) * Math.tan(p2) - Math.sin(p1) * Math.cos(l2 - l1);
+        qiblaAngle = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+
+        initApp();
+    }, (err) => {
+        statusText.innerText = "يرجى تفعيل الموقع لتحديد القبلة بدقة";
+    }, { enableHighAccuracy: true });
+
+    function initApp() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            statusText.innerText = "نظام iOS يتطلب إذناً يدوياً";
+            activateBtn.style.display = 'inline-block';
+        } else {
+            window.addEventListener('deviceorientationabsolute', updateMotion, true);
+            window.addEventListener('deviceorientation', updateMotion, true);
+            statusText.innerText = "ضع الهاتف بشكل مسطح وأدره";
+            render();
+        }
+    }
+
+    async function startCompass() {
+        try {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission === 'granted') {
+                window.addEventListener('deviceorientation', updateMotion, true);
+                activateBtn.style.display = 'none';
+                statusText.innerText = "تم التفعيل.. ابحث عن القبلة";
+                render();
+            }
+        } catch (e) {
+            statusText.innerText = "حدث خطأ في طلب الإذن";
+        }
+    }
+
+    function updateMotion(e) {
+        if (e.webkitCompassHeading) {
+            deviceHeading = e.webkitCompassHeading;
+        } else if (e.alpha !== null) {
+            deviceHeading = 360 - e.alpha;
+        }
+    }
+
+    function render() {
+        // حساب الفرق مع معالجة نقطة الصفر
+        let diff = deviceHeading - smoothHeading;
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        
+        // القيمة 0.04 تعطي ثباتاً عالياً وحركة رزيينة (زيادة الرقم تزيد السرعة)
+        smoothHeading += diff * 0.04; 
+
+        const finalRotation = qiblaAngle - smoothHeading;
+        kaabaNode.style.transform = `rotate(${finalRotation}deg)`;
+
+        // التحقق من المطابقة (نطاق 5 درجات)
+        const check = (finalRotation % 360 + 360) % 360;
+        if (check < 5 || check > 355) {
+            if (!isSuccess) {
+                if (navigator.vibrate) navigator.vibrate(50); 
+                isSuccess = true;
+            }
+            mainCompass.classList.add('success');
+            statusText.innerHTML = "<b style='color:#2ecc71'>القبلة في هذا الاتجاه ✅</b>";
+        } else {
+            isSuccess = false;
+            mainCompass.classList.remove('success');
+            statusText.innerText = "أدر الجوال يميناً أو يساراً";
+        }
+        requestAnimationFrame(render);
+    }
+</script>
+</body>
+</html>
